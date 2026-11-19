@@ -43,7 +43,7 @@ export default function Drawer({ open, onClose, tabs, tab, onPick, name, version
             );
           })}
           <View style={{ flex: 1 }} />
-          {version ? <Text style={{ color: c.mut, fontSize: 12.5, textAlign: 'center', paddingTop: 12 }}>Version {version}</Text> : null}
+          {version ? <Text style={{ color: c.mut, fontSize: 12.5, textAlign: 'center', paddingTop: 12 }}>{'Version ' + version}</Text> : null}
         </Animated.View>
       </View>
     </Modal>

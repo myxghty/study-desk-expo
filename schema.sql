@@ -184,3 +184,26 @@ grant select, insert, delete on public.teacher_marks to authenticated;
 grant select, insert, update, delete on public.snapshots to authenticated;
 grant execute on function public.join_class(text), public.create_class(text) to authenticated;
 grant execute on function public.is_class_teacher(uuid), public.is_class_member(uuid), public.teaches_student(uuid) to authenticated;
+
+
+-- ===== AI coach: per-user daily question limit =====
+create table if not exists public.coach_usage (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  day date not null default ((now() at time zone 'utc')::date),
+  n int not null default 0,
+  primary key (user_id, day)
+);
+alter table public.coach_usage enable row level security;   -- no policies: only the function below can touch it
+
+create or replace function public.coach_take(p_limit int default 30) returns boolean
+language plpgsql security definer set search_path = public as $$
+declare c int;
+begin
+  insert into coach_usage (user_id, n) values (auth.uid(), 1)
+  on conflict (user_id, day) do update set n = coach_usage.n + 1
+  returning n into c;
+  return c <= p_limit;
+end $$;
+revoke all on public.coach_usage from anon, authenticated;
+revoke execute on function public.coach_take(int) from anon, public;
+grant execute on function public.coach_take(int) to authenticated;

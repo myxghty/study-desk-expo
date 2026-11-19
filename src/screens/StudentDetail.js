@@ -18,6 +18,7 @@ export default function StudentDetail({ cls, student, onBack }) {
   const [max, setMax] = useState('');
   const [comment, setComment] = useState('');
   const [err, setErr] = useState('');
+  const [openNote, setOpenNote] = useState(-1);
 
   const load = useCallback(async () => {
     setErr('');
@@ -47,12 +48,14 @@ export default function StudentDetail({ cls, student, onBack }) {
   ]);
 
   const d = snap && snap.data && typeof snap.data === 'object' ? snap.data : {};
-  const marks = arr(d.marks).map((m) => ({ course: str(m.course), name: str(m.name), score: num(m.score), max: num(m.max) || 1, w: num(m.w) }));
+  const marks = arr(d.marks).map((m) => ({ course: str(m.course), name: str(m.name), score: num(m.score), max: num(m.max) || 1, w: num(m.w), kind: str(m.kind) || 'exam' }));
+  const notes = arr(d.notes).slice(0, 30).map((n) => ({ title: str(n.title) || 'Untitled', course: str(n.course), body: String(n.body == null ? '' : n.body).slice(0, 4000) }));
+  const KIND = { exam: 'Exam', quiz: 'Quiz / test', assignment: 'Assignment', other: 'Other' };
   const focus = d.focus && typeof d.focus === 'object' ? d.focus : {};
   const week = lastDays(7).map((day) => ({ day, min: num((focus[day] || {}).min) }));
   const weekMin = week.reduce((a, x) => a + x.min, 0);
   const hrs = (m) => (m / 60).toFixed(1) + ' h';
-  const shared = snap && (d.marks || d.focus || d.open || d.done || d.flags);
+  const shared = snap && (d.marks || d.focus || d.open || d.done || d.flags || d.notes);
 
   return (
     <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
@@ -73,11 +76,11 @@ export default function StudentDetail({ cls, student, onBack }) {
           ) : null}
 
           {d.marks ? (
-            <Card title="Marks (self-recorded)">
+            <Card title="Marks entered by the student">
               {marks.length === 0 ? <Empty text="No marks yet." /> : courseStats(marks).map((x) => (
                 <View key={x.c} style={{ paddingVertical: 8, borderTopWidth: 1, borderTopColor: c.line }}>
                   <Text style={{ color: c.ink, fontSize: 16 }}>{x.c} · {Math.round(x.pct)}%</Text>
-                  <Text style={{ color: c.mut, fontSize: 12.5 }}>{x.arr.map((m) => m.name + ' ' + m.score + '/' + m.max).join(', ')}</Text>
+                  {x.arr.map((m, k) => <Text key={k} style={{ color: c.mut, fontSize: 13, marginTop: 2 }}>{KIND[m.kind] || 'Exam'} · {m.name}: {m.score}/{m.max} ({Math.round((m.score / m.max) * 100)}%)</Text>)}
                 </View>
               ))}
             </Card>
@@ -89,6 +92,18 @@ export default function StudentDetail({ cls, student, onBack }) {
               <View style={{ flexDirection: 'row', alignItems: 'flex-end', height: 60, marginTop: 10 }}>
                 {week.map((x) => <View key={x.day} style={{ flex: 1, marginHorizontal: 2, height: Math.max(3, Math.min(60, x.min / 2)), backgroundColor: c.acc, borderRadius: 3 }} />)}
               </View>
+            </Card>
+          ) : null}
+
+          {d.notes ? (
+            <Card title={'Shared notes (' + notes.length + ')'}>
+              {notes.length === 0 ? <Empty text="No notes shared." /> : notes.map((n, k) => (
+                <Pressable key={k} onPress={() => setOpenNote(openNote === k ? -1 : k)} style={{ paddingVertical: 10, borderTopWidth: 1, borderTopColor: c.line }}>
+                  <Text style={{ color: c.ink, fontSize: 16, fontWeight: '600' }}>{n.title}</Text>
+                  {n.course ? <Text style={{ color: c.mut, fontSize: 12.5 }}>{n.course}</Text> : null}
+                  <Text numberOfLines={openNote === k ? undefined : 2} style={{ color: c.ink, fontSize: 14, lineHeight: 20, marginTop: 4 }}>{n.body}</Text>
+                </Pressable>
+              ))}
             </Card>
           ) : null}
 

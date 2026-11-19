@@ -7,9 +7,9 @@ let cached;          // undefined = not loaded yet, null = signed out
 
 export const isId = (v) => typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
 
-async function http(path, { method = 'GET', body, token, headers } = {}) {
+async function http(path, { method = 'GET', body, token, headers, timeout = 15000 } = {}) {
   const ctl = new AbortController();
-  const timer = setTimeout(() => ctl.abort(), 15000);
+  const timer = setTimeout(() => ctl.abort(), timeout);
   let r;
   try {
     r = await fetch(SUPABASE_URL + path, {
@@ -79,6 +79,12 @@ export const insert = (table, row) => db('POST', table, row, { Prefer: 'return=r
 export const upsert = (table, row, conflict) => db('POST', table + '?on_conflict=' + conflict, row, { Prefer: 'resolution=merge-duplicates,return=minimal' });
 export const remove = (path) => db('DELETE', path);
 export const rpc = (name, args) => db('POST', 'rpc/' + name, args || {});
+// Calls a Supabase Edge Function as the signed-in user (used by the AI coach).
+export async function callFunction(name, body) {
+  const t = await token();
+  if (!t) throw Object.assign(new Error('Please sign in first.'), { status: 401 });
+  return http('/functions/v1/' + name, { method: 'POST', body, token: t, timeout: 45000 });
+}
 export async function myProfile() {
   const s = await load();
   if (!s || !isId(s.uid)) return null;

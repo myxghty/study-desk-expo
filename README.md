@@ -42,3 +42,17 @@ Sign-in, classes, posts and marks run on Supabase (`src/config.js` holds the pro
 3. Choose "I'm a teacher" or "I'm a student" on first launch. Teachers create a class and share its code; students join with it.
 
 Students see posts from their classes land in Plan (and the phone calendar). Teachers see only what each student switched on, and can post marks.
+
+
+## v3.3: notes, exam marks, AI coach, editions
+
+- **Notes** tab: private by default. Switch on "Share with my teachers" per note; the teacher sees only those, and only while "Notes" sharing is on in Classes.
+- **Marks** now have a type (Exam / Quiz / Assignment / Other). Teachers see every mark the student shares, labelled by type.
+- **Editions** (`src/config.js`, `EDITION`): `'friend'` starts every sharing switch on; `'public'` starts notes and flags off. Students can change all switches either way.
+- **Study coach**: calls the `coach` Edge Function (`supabase/functions/coach/index.ts`). Until it is deployed the screen shows a simple offline plan instead.
+
+### Turning the AI coach on
+1. Run the new part of `schema.sql` (adds the daily-limit table).
+2. Get an API key at console.anthropic.com (pay as you go).
+3. Supabase > Edge Functions > Deploy a new function > name it `coach` > paste `supabase/functions/coach/index.ts` > turn **Verify JWT** off > Deploy.
+4. Edge Functions > Secrets > add `ANTHROPIC_API_KEY`.

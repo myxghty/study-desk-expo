@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { useC } from '../theme';
-import { Card, Btn, Stat, Field, CourseField, ItemRow, Empty } from '../components/ui';
+import { Card, Btn, Chip, Stat, Field, CourseField, ItemRow, Empty } from '../components/ui';
 import { courseStats, uid } from '../logic';
+
+const KINDS = [['exam', 'Exam'], ['quiz', 'Quiz / test'], ['assignment', 'Assignment'], ['other', 'Other']];
+const KIND_LABEL = Object.fromEntries(KINDS);
 
 export default function MarksScreen({ s, update }) {
   const c = useC();
@@ -11,6 +14,7 @@ export default function MarksScreen({ s, update }) {
   const [score, setScore] = useState('');
   const [max, setMax] = useState('');
   const [w, setW] = useState('');
+  const [kind, setKind] = useState('exam');
 
   const cs = courseStats(s.marks);
   const courses = [...new Set([...s.items.map((i) => i.course), ...s.marks.map((m) => m.course)].filter(Boolean))];
@@ -20,7 +24,7 @@ export default function MarksScreen({ s, update }) {
   const add = () => {
     const sc = parseFloat(score), mx = parseFloat(max), wt = parseFloat(w) || 0;
     if (!name.trim() || isNaN(sc) || !(mx > 0)) return;
-    update((p) => ({ ...p, marks: [...p.marks, { id: uid(), name: name.trim(), course: course.trim(), score: sc, max: mx, w: wt }] }));
+    update((p) => ({ ...p, marks: [...p.marks, { id: uid(), name: name.trim(), course: course.trim(), score: sc, max: mx, w: wt, kind }] }));
     setName(''); setScore(''); setMax(''); setW('');
   };
 
@@ -35,6 +39,9 @@ export default function MarksScreen({ s, update }) {
       </View>
 
       <Card title="Add marks">
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}>
+          {KINDS.map(([k, l]) => <Chip key={k} label={l} on={kind === k} onPress={() => setKind(k)} style={{ marginBottom: 6 }} />)}
+        </View>
         <Field value={name} onChangeText={setName} placeholder="Assessment e.g. CT-1, Lab viva" />
         <CourseField value={course} onChangeText={setCourse} courses={courses} />
         <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -56,7 +63,7 @@ export default function MarksScreen({ s, update }) {
               <ItemRow
                 key={m.id}
                 title={m.name}
-                meta={m.score + ' / ' + m.max + ' · ' + Math.round((m.score / m.max) * 100) + '%' + (m.w ? ' · weight ' + m.w + '%' : '')}
+                meta={(KIND_LABEL[m.kind] || 'Exam') + ' · ' + m.score + ' / ' + m.max + ' · ' + Math.round((m.score / m.max) * 100) + '%' + (m.w ? ' · weight ' + m.w + '%' : '')}
                 onDelete={() => update((p) => ({ ...p, marks: p.marks.filter((k) => k.id !== m.id) }))}
               />
             ))}

@@ -16,7 +16,7 @@ import { Card, Btn } from './src/components/ui';
 import Drawer from './src/components/Drawer';
 import appJson from './app.json';
 
-const VERSION = (appJson.expo && appJson.expo.version) || '';
+const VERSION = ((appJson.expo && appJson.expo.version) || '') + (EDITION === 'friend' ? ' · friend edition' : '');
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import SetupScreen from './src/screens/SetupScreen';
 import LockScreen from './src/screens/LockScreen';
@@ -25,10 +25,13 @@ import MarksScreen from './src/screens/MarksScreen';
 import InsightsScreen from './src/screens/InsightsScreen';
 import ClassesScreen from './src/screens/ClassesScreen';
 import AuthScreen from './src/screens/AuthScreen';
+import NotesScreen from './src/screens/NotesScreen';
+import CoachScreen from './src/screens/CoachScreen';
+import { EDITION } from './src/config';
 import TeacherScreen, { TeacherAccount } from './src/screens/TeacherScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 
-const STUDENT_TABS = [['plan', 'Plan'], ['marks', 'Marks'], ['classes', 'Classes'], ['insights', 'Insights'], ['settings', 'Settings']];
+const STUDENT_TABS = [['plan', 'Plan'], ['marks', 'Marks'], ['notes', 'Notes'], ['coach', 'Study coach'], ['classes', 'Classes'], ['insights', 'Insights'], ['settings', 'Settings']];
 const TEACHER_TABS = [['classes', 'Classes'], ['account', 'Account']];
 const RELOCK_AFTER_MS = 60000;
 
@@ -160,6 +163,8 @@ export default function App() {
   } else {
     const screen = tab === 'plan' ? <PlanScreen s={s} update={update} openInsights={() => setTab('insights')} />
       : tab === 'marks' ? <MarksScreen s={s} update={update} />
+      : tab === 'notes' ? <NotesScreen s={s} update={update} />
+      : tab === 'coach' ? <CoachScreen s={s} />
       : tab === 'classes' ? <ClassesScreen s={s} update={update} />
       : tab === 'insights' ? <InsightsScreen s={s} />
       : <SettingsScreen s={s} update={update} />;

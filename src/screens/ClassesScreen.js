@@ -100,7 +100,8 @@ export default function ClassesScreen({ s, update }) {
             <Toggle label="Study hours" value={s.share.hours} onChange={(v) => setShare('hours', v)} />
             <Toggle label="To-do list" value={s.share.tasks} onChange={(v) => setShare('tasks', v)} />
             <Toggle label="Finished items" value={s.share.done} onChange={(v) => setShare('done', v)} />
-            <Toggle label="Procrastination flags" hint="Off by default" value={s.share.flags} onChange={(v) => setShare('flags', v)} />
+            <Toggle label="Notes" hint="Only notes you mark as shared" value={s.share.notes} onChange={(v) => setShare('notes', v)} />
+            <Toggle label="Procrastination flags" hint="Shows if you're falling behind" value={s.share.flags} onChange={(v) => setShare('flags', v)} />
           </View>
           <Text style={{ color: c.mut, fontSize: 12, marginTop: 8 }}>Only what's switched on is uploaded. It updates a few seconds after changes while the app is open.</Text>
         </Card>

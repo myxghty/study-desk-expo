@@ -2,7 +2,7 @@
   "expo": {
     "name": "Study Desk",
     "slug": "study-desk",
-    "version": "3.2.0",
+    "version": "3.3.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "icon": "./assets/icon.png",

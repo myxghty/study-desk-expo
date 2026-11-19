@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import { EDITION } from './config';
 
 const KEY = 'studydesk.v1';
 const EMPTY = {
-  items: [], focus: {}, quick: [], marks: [],
+  items: [], focus: {}, quick: [], marks: [], notes: [],
   stats: { starts: {}, abandoned: {} },
   profile: { name: '', onboarded: false, lock: false, role: '' },
   postSeen: {},
-  share: { on: false, marks: true, hours: true, tasks: true, done: true, flags: false },
+  share: { on: false, marks: true, hours: true, tasks: true, done: true, notes: EDITION === 'friend', flags: EDITION === 'friend' },
   settings: { calOn: false, calId: '', remindOn: false, remindDeadlines: true, remindDaily: true, remindTime: '18:00', timerSec: { focus: 1500, short: 300, long: 900 } },
 };
 const NESTED = ['stats', 'profile', 'share', 'settings'];
